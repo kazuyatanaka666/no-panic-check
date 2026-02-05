@@ -1,119 +1,218 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NO PANIC CHECK（Demo）</title>
-  <style>
-    :root{
-      --bg:#ffffff; --text:#0b0f18; --muted:#6b7280;
-      --border:#e5e7eb; --panel:#f9fafb;
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text)}
-    a{color:inherit}
-    .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:6px 0 18px}
-    .brand{font-weight:900;letter-spacing:.02em}
-    .pill{font-size:12px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted)}
-    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch}
-    @media (max-width:860px){.hero{grid-template-columns:1fr}}
-    .card{border:1px solid var(--border);border-radius:var(--radius);background:#fff;padding:18px}
-    .panel{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);padding:18px}
-    h1{font-size:36px;line-height:1.1;margin:4px 0 10px}
-    .sub{font-size:14px;color:var(--muted);line-height:1.7}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:12px 14px;border-radius:14px;font-weight:900;text-decoration:none;
-      border:1px solid var(--border);background:#fff;
-      min-width:160px;
-    }
-    .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .steps{display:grid;gap:10px;margin-top:12px}
-    .step{display:flex;gap:10px;align-items:flex-start}
-    .dot{width:26px;height:26px;border-radius:999px;background:#111827;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex:0 0 auto}
-    .step b{display:block}
-    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-    @media (max-width:860px){.grid3{grid-template-columns:1fr}}
-    .k{font-weight:900}
-    .sec{margin-top:22px}
-    .sec h2{font-size:18px;margin:0 0 10px}
-    .embedBox{border:1px solid var(--border);border-radius:var(--radius);background:#fff;padding:18px}
-    .footer{margin-top:18px;color:var(--muted);font-size:11px;line-height:1.7}
-    .divider{height:1px;background:var(--border);margin:22px 0}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="nav">
-      <div class="brand">NO PANIC CHECK</div>
-      <div class="pill">診断ではありません（目安）</div>
+<div id="npcWrap" style="max-width:520px;margin:0 auto;font-family:system-ui,-apple-system,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;">
+  <div style="border:1px solid #e5e7eb;border-radius:16px;padding:18px;background:#fff;">
+    <div id="eyeLabel" style="font-weight:900;margin-bottom:8px;">右目でテスト</div>
+
+    <div style="display:flex;justify-content:center;align-items:center;height:220px;">
+      <svg id="optotype" width="200" height="200" viewBox="0 0 100 100" style="user-select:none">
+        <g id="eShape" fill="#111827">
+          <rect x="18" y="18" width="16" height="64"></rect>
+          <rect x="34" y="18" width="48" height="16"></rect>
+          <rect x="34" y="42" width="40" height="16"></rect>
+          <rect x="34" y="66" width="48" height="16"></rect>
+        </g>
+      </svg>
     </div>
 
-    <section class="hero">
-      <div class="card">
-        <div class="pill" style="display:inline-block;margin-bottom:10px;">30秒〜2分 / Webセルフチェック</div>
-        <h1>“迷う時間”を、<br>買う確信に変える。</h1>
-        <div class="sub">
-          老眼鏡は、必要になってから購入までにラグが出やすい。<br>
-          NO PANIC CHECKは「困りごと」から入り、短いチェックで“購入の目安”を提示します。
-        </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;opacity:.75;">
+      <div>問題 <span id="qNum">1</span>/10</div>
+      <div>サイズ: <span id="sizeMm">--</span> mm（目安）</div>
+    </div>
 
-        <div class="btns">
-          <a class="btn primary" href="#test">チェックを始める</a>
-          <a class="btn" href="#disclaimer">注意事項</a>
-        </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+      <button class="npcBtn" data-dir="up">↑ 上</button>
+      <button class="npcBtn" data-dir="right">→ 右</button>
+      <button class="npcBtn" data-dir="left">← 左</button>
+      <button class="npcBtn" data-dir="down">↓ 下</button>
+    </div>
 
-        <div class="divider"></div>
-
-        <div class="sub"><span class="k">このデモの目的：</span>購入導線の“迷い”を減らし、EC/取扱店へ自然に誘導する</div>
-      </div>
-
-      <div class="panel">
-        <div class="k" style="font-size:16px;">How it works</div>
-        <div class="steps">
-          <div class="step"><div class="dot">1</div><div><b>条件を合わせる</b><div class="sub">明るい場所 / 約40cm / 片目ずつ</div></div></div>
-          <div class="step"><div class="dot">2</div><div><b>方向をタップ</b><div class="sub">Eの向きを4方向で回答</div></div></div>
-          <div class="step"><div class="dot">3</div><div><b>目安とおすすめ</b><div class="sub">負担レベル＋度数レンジ（目安）</div></div></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="sec">
-      <h2>チェック前の3つ</h2>
-      <div class="grid3">
-        <div class="card"><div class="k">明るい場所</div><div class="sub">暗い場所だと結果がブレやすい</div></div>
-        <div class="card"><div class="k">約40cm</div><div class="sub">スマホを自然に持つ距離が目安</div></div>
-        <div class="card"><div class="k">片目ずつ</div><div class="sub">右→左の順に実施</div></div>
-      </div>
-    </section>
-
-    <section class="sec" id="test">
-      <h2>NO PANIC CHECK（デモ）</h2>
-      <div class="embedBox">
-        <!-- ▼▼ ここに Eチャートの“動くコード”を丸ごと貼る（前に渡した1ページ完結版でもOK） ▼▼ -->
-        <div style="color:var(--muted);font-size:13px;line-height:1.7;">
-          ここにEチャートのコードを貼ると、この枠内でテストが動きます。
-        </div>
-        <!-- ▲▲ ここまで ▲▲ -->
-      </div>
-
-      <div class="footer">
-        ※このデモは診断ではなくセルフチェック（目安）です。結果は端末・距離・環境で変動します。
-      </div>
-    </section>
-
-    <section class="sec" id="disclaimer">
-      <h2>注意事項</h2>
-      <div class="card">
-        <div class="sub">
-          ・本サービスは医療的な診断ではなく、購入の迷いを減らすためのセルフチェック（目安）です。<br>
-          ・急に見え方が変わった／強い違和感がある場合は眼科の受診を推奨します。
-        </div>
-      </div>
-    </section>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button id="skipEye" style="flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff;">この目をスキップ</button>
+      <button id="reset" style="flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff;">やり直す</button>
+    </div>
   </div>
-</body>
-</html>
+
+  <div id="npcResult" style="display:none;margin-top:14px;border:1px solid #e5e7eb;border-radius:16px;padding:16px;background:#fff;">
+    <div style="font-weight:900;font-size:20px;">結果（目安）</div>
+    <div id="line1" style="margin-top:10px;font-size:14px;"></div>
+    <div id="line2" style="margin-top:8px;font-size:14px;"></div>
+
+    <div style="margin-top:12px;padding:14px;border:1px solid #e5e7eb;border-radius:16px;">
+      <div style="font-weight:900;">購入の目安</div>
+      <div id="range" style="font-size:24px;font-weight:900;margin-top:6px;"></div>
+      <div style="font-size:12px;opacity:.7;margin-top:6px;">※診断ではなくセルフチェック（目安）です</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <a id="shop" href="https://dontpanic.tokyo/" target="_blank"
+         style="flex:1;text-align:center;background:#111827;color:#fff;padding:12px;border-radius:14px;text-decoration:none;font-weight:900;">オンラインで見る</a>
+      <a id="dealer" href="https://dontpanic.tokyo/" target="_blank"
+         style="flex:1;text-align:center;border:1px solid #e5e7eb;padding:12px;border-radius:14px;text-decoration:none;font-weight:900;color:#111827;">取扱店を探す</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const TOTAL_Q = 10;
+  const LEVELS = [14, 11, 9, 7, 5.5, 4.3, 3.4, 2.7];
+  const PX_PER_MM_FALLBACK = 7;
+
+  let eye = "R";
+  let q = 1;
+  let idx = 0;
+  let streak = 0;
+  let lastMove = null;
+  let reversals = 0;
+  const history = { R: [], L: [] };
+  const dirs = ["up","right","down","left"];
+  let correctDir = "up";
+
+  const eyeLabel = document.getElementById("eyeLabel");
+  const qNum = document.getElementById("qNum");
+  const sizeMm = document.getElementById("sizeMm");
+  const optotype = document.getElementById("optotype");
+  const eShape = document.getElementById("eShape");
+  const btns = Array.from(document.querySelectorAll(".npcBtn"));
+  const skipEye = document.getElementById("skipEye");
+  const reset = document.getElementById("reset");
+
+  const resultBox = document.getElementById("npcResult");
+  const line1 = document.getElementById("line1");
+  const line2 = document.getElementById("line2");
+  const rangeEl = document.getElementById("range");
+
+  const css = document.createElement("style");
+  css.textContent = `
+    .npcBtn{border:0;border-radius:14px;padding:14px;font-weight:900;background:#111827;color:#fff;cursor:pointer}
+    .npcBtn:active{transform:scale(.99);opacity:.92}
+  `;
+  document.head.appendChild(css);
+
+  function randDir(){ return dirs[Math.floor(Math.random()*dirs.length)]; }
+
+  function setOptotype(levelMm, dir){
+    const sizePx = Math.round(levelMm * PX_PER_MM_FALLBACK);
+    optotype.style.width = (sizePx*6) + "px";
+    optotype.style.height = (sizePx*6) + "px";
+    const angle = {up:0,right:90,down:180,left:270}[dir];
+    eShape.setAttribute("transform", `rotate(${angle} 50 50)`);
+    correctDir = dir;
+    sizeMm.textContent = levelMm.toString();
+  }
+
+  function pushHistory(correct){
+    history[eye].push({ levelMm: LEVELS[idx], correct, ts: Date.now() });
+  }
+
+  function median(arr){
+    const s = [...arr].sort((a,b)=>a-b);
+    const m = Math.floor(s.length/2);
+    return s.length % 2 ? s[m] : (s[m-1]+s[m])/2;
+  }
+
+  function scoreEye(k){
+    const h = history[k];
+    if(!h.length) return null;
+    const last = h.slice(-6).map(x => x.levelMm);
+    return median(last);
+  }
+
+  function toBurden(scoreMm){
+    if(scoreMm == null) return "unknown";
+    if(scoreMm <= 4.0) return "low";
+    if(scoreMm <= 6.5) return "mid";
+    return "high";
+  }
+
+  function recRange(b){
+    if(b === "low") return "+0.5〜+1.0（目安）";
+    if(b === "mid") return "+1.0〜+1.5（目安）";
+    if(b === "high") return "+1.5〜+2.0（目安）";
+    return "+1.0〜+1.5（目安）";
+  }
+
+  function nextQuestion(){
+    qNum.textContent = q.toString();
+    setOptotype(LEVELS[idx], randDir());
+  }
+
+  function applyStaircase(correct){
+    let move = null;
+    if(correct){
+      streak += 1;
+      if(streak >= 3){
+        streak = 0;
+        const newIdx = Math.min(idx + 1, LEVELS.length - 1);
+        move = (newIdx !== idx) ? "down" : null;
+        idx = newIdx;
+      }
+    } else {
+      streak = 0;
+      const newIdx = Math.max(idx - 1, 0);
+      move = (newIdx !== idx) ? "up" : null;
+      idx = newIdx;
+    }
+    if(lastMove && move && move !== lastMove) reversals += 1;
+    if(move) lastMove = move;
+  }
+
+  function showResult(){
+    const rScore = scoreEye("R");
+    const lScore = scoreEye("L");
+    let scoreMm = null;
+    if(rScore != null && lScore != null) scoreMm = Math.max(rScore, lScore);
+    else scoreMm = rScore ?? lScore;
+
+    const burden = toBurden(scoreMm);
+    const burdenJa = burden === "low" ? "低" : burden === "high" ? "高" : "中";
+
+    line1.textContent = `近くを見る負担：${burdenJa}（目安）`;
+    line2.textContent = `スコア：${scoreMm ? scoreMm + "mm" : "—"}（参考値）`;
+    rangeEl.textContent = recRange(burden);
+
+    resultBox.style.display = "block";
+    resultBox.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function resetAll(){
+    eye = "R"; q = 1; idx = 0; streak = 0; lastMove = null; reversals = 0;
+    history.R = []; history.L = [];
+    eyeLabel.textContent = "右目でテスト";
+    resultBox.style.display = "none";
+    nextQuestion();
+  }
+
+  function toLeftEye(){
+    eye = "L";
+    eyeLabel.textContent = "左目でテスト";
+    q = 1; idx = 0; streak = 0; lastMove = null; reversals = 0;
+    nextQuestion();
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => {
+    const ans = b.dataset.dir;
+    const correct = (ans === correctDir);
+    pushHistory(correct);
+    applyStaircase(correct);
+
+    q += 1;
+    const done = (q > TOTAL_Q) || (reversals >= 6);
+
+    if(done){
+      if(eye === "R") toLeftEye();
+      else showResult();
+      return;
+    }
+    nextQuestion();
+  }));
+
+  skipEye.addEventListener("click", () => {
+    if(eye === "R") toLeftEye();
+    else showResult();
+  });
+
+  reset.addEventListener("click", resetAll);
+
+  nextQuestion();
+})();
+</script>
