@@ -1,0 +1,67 @@
+[
+  {
+    "id": "P001",
+    "name": "リネン混ライトジャケット",
+    "category": "アウター",
+    "color": "navy",
+    "size": "M",
+    "material": "リネン",
+    "taste": "きれいめ",
+    "season": "spring",
+    "stock": 3,
+    "price": 12800,
+    "image": "https://images.unsplash.com/photo-1592878940526-0214b0f374f6?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "id": "P002",
+    "name": "ワイドデニムパンツ",
+    "category": "パンツ",
+    "color": "blue",
+    "size": "L",
+    "material": "デニム",
+    "taste": "カジュアル",
+    "season": "all",
+    "stock": 5,
+    "price": 7900,
+    "image": "https://images.unsplash.com/photo-1602293589914-9e5bfb0f7f95?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "id": "P003",
+    "name": "差し色ニットカーディガン",
+    "category": "トップス",
+    "color": "red",
+    "size": "M",
+    "material": "ニット",
+    "taste": "カジュアル",
+    "season": "autumn",
+    "stock": 2,
+    "price": 6900,
+    "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "id": "P004",
+    "name": "センタープレススラックス",
+    "category": "パンツ",
+    "color": "black",
+    "size": "M",
+    "material": "ポリエステル",
+    "taste": "フォーマル",
+    "season": "all",
+    "stock": 0,
+    "price": 8400,
+    "image": "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "id": "P005",
+    "name": "コットンオーバーシャツ",
+    "category": "トップス",
+    "color": "white",
+    "size": "L",
+    "material": "コットン",
+    "taste": "きれいめ",
+    "season": "summer",
+    "stock": 4,
+    "price": 6200,
+    "image": "https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?auto=format&fit=crop&w=600&q=80"
+  }
+]

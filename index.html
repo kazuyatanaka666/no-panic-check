@@ -1,218 +1,54 @@
-<div id="npcWrap" style="max-width:520px;margin:0 auto;font-family:system-ui,-apple-system,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;">
-  <div style="border:1px solid #e5e7eb;border-radius:16px;padding:18px;background:#fff;">
-    <div id="eyeLabel" style="font-weight:900;margin-bottom:8px;">右目でテスト</div>
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>店舗向け iPad 接客支援 MVP</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="card">
+        <h1>iPad 接客支援デモ</h1>
+        <p>
+          服装画像を撮影すると、店舗在庫（ダミー）から相性の良い商品を提案します。
+        </p>
+      </header>
 
-    <div style="display:flex;justify-content:center;align-items:center;height:220px;">
-      <svg id="optotype" width="200" height="200" viewBox="0 0 100 100" style="user-select:none">
-        <g id="eShape" fill="#111827">
-          <rect x="18" y="18" width="16" height="64"></rect>
-          <rect x="34" y="18" width="48" height="16"></rect>
-          <rect x="34" y="42" width="40" height="16"></rect>
-          <rect x="34" y="66" width="48" height="16"></rect>
-        </g>
-      </svg>
-    </div>
+      <section class="card">
+        <h2>1. 服装を撮影 / 選択</h2>
+        <div class="camera-area">
+          <video id="video" autoplay playsinline muted></video>
+          <canvas id="snapshotCanvas" aria-label="撮影プレビュー"></canvas>
+        </div>
+        <div class="actions">
+          <button id="startCameraBtn" class="primary">カメラ開始</button>
+          <button id="captureBtn">撮影</button>
+          <label class="file-input-label">
+            画像を選択
+            <input id="fileInput" type="file" accept="image/*" capture="environment" />
+          </label>
+        </div>
+        <p class="note">※ 顔認識は行わず、画像はブラウザ内メモリだけで処理します。</p>
+      </section>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;opacity:.75;">
-      <div>問題 <span id="qNum">1</span>/10</div>
-      <div>サイズ: <span id="sizeMm">--</span> mm（目安）</div>
-    </div>
+      <section class="card">
+        <h2>2. 解析結果（簡易）</h2>
+        <ul id="featureList" class="feature-list">
+          <li>画像を読み込むと特徴が表示されます。</li>
+        </ul>
+      </section>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
-      <button class="npcBtn" data-dir="up">↑ 上</button>
-      <button class="npcBtn" data-dir="right">→ 右</button>
-      <button class="npcBtn" data-dir="left">← 左</button>
-      <button class="npcBtn" data-dir="down">↓ 下</button>
-    </div>
+      <section class="card">
+        <div class="recommend-head">
+          <h2>3. おすすめ商品</h2>
+          <button id="recommendBtn" class="primary">おすすめを表示</button>
+        </div>
+        <div id="recommendStatus" class="note">先に画像を撮影/選択してください。</div>
+        <div id="recommendList" class="recommend-list"></div>
+      </section>
+    </main>
 
-    <div style="display:flex;gap:10px;margin-top:14px;">
-      <button id="skipEye" style="flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff;">この目をスキップ</button>
-      <button id="reset" style="flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff;">やり直す</button>
-    </div>
-  </div>
-
-  <div id="npcResult" style="display:none;margin-top:14px;border:1px solid #e5e7eb;border-radius:16px;padding:16px;background:#fff;">
-    <div style="font-weight:900;font-size:20px;">結果（目安）</div>
-    <div id="line1" style="margin-top:10px;font-size:14px;"></div>
-    <div id="line2" style="margin-top:8px;font-size:14px;"></div>
-
-    <div style="margin-top:12px;padding:14px;border:1px solid #e5e7eb;border-radius:16px;">
-      <div style="font-weight:900;">購入の目安</div>
-      <div id="range" style="font-size:24px;font-weight:900;margin-top:6px;"></div>
-      <div style="font-size:12px;opacity:.7;margin-top:6px;">※診断ではなくセルフチェック（目安）です</div>
-    </div>
-
-    <div style="display:flex;gap:10px;margin-top:12px;">
-      <a id="shop" href="https://dontpanic.tokyo/" target="_blank"
-         style="flex:1;text-align:center;background:#111827;color:#fff;padding:12px;border-radius:14px;text-decoration:none;font-weight:900;">オンラインで見る</a>
-      <a id="dealer" href="https://dontpanic.tokyo/" target="_blank"
-         style="flex:1;text-align:center;border:1px solid #e5e7eb;padding:12px;border-radius:14px;text-decoration:none;font-weight:900;color:#111827;">取扱店を探す</a>
-    </div>
-  </div>
-</div>
-
-<script>
-(() => {
-  const TOTAL_Q = 10;
-  const LEVELS = [14, 11, 9, 7, 5.5, 4.3, 3.4, 2.7];
-  const PX_PER_MM_FALLBACK = 7;
-
-  let eye = "R";
-  let q = 1;
-  let idx = 0;
-  let streak = 0;
-  let lastMove = null;
-  let reversals = 0;
-  const history = { R: [], L: [] };
-  const dirs = ["up","right","down","left"];
-  let correctDir = "up";
-
-  const eyeLabel = document.getElementById("eyeLabel");
-  const qNum = document.getElementById("qNum");
-  const sizeMm = document.getElementById("sizeMm");
-  const optotype = document.getElementById("optotype");
-  const eShape = document.getElementById("eShape");
-  const btns = Array.from(document.querySelectorAll(".npcBtn"));
-  const skipEye = document.getElementById("skipEye");
-  const reset = document.getElementById("reset");
-
-  const resultBox = document.getElementById("npcResult");
-  const line1 = document.getElementById("line1");
-  const line2 = document.getElementById("line2");
-  const rangeEl = document.getElementById("range");
-
-  const css = document.createElement("style");
-  css.textContent = `
-    .npcBtn{border:0;border-radius:14px;padding:14px;font-weight:900;background:#111827;color:#fff;cursor:pointer}
-    .npcBtn:active{transform:scale(.99);opacity:.92}
-  `;
-  document.head.appendChild(css);
-
-  function randDir(){ return dirs[Math.floor(Math.random()*dirs.length)]; }
-
-  function setOptotype(levelMm, dir){
-    const sizePx = Math.round(levelMm * PX_PER_MM_FALLBACK);
-    optotype.style.width = (sizePx*6) + "px";
-    optotype.style.height = (sizePx*6) + "px";
-    const angle = {up:0,right:90,down:180,left:270}[dir];
-    eShape.setAttribute("transform", `rotate(${angle} 50 50)`);
-    correctDir = dir;
-    sizeMm.textContent = levelMm.toString();
-  }
-
-  function pushHistory(correct){
-    history[eye].push({ levelMm: LEVELS[idx], correct, ts: Date.now() });
-  }
-
-  function median(arr){
-    const s = [...arr].sort((a,b)=>a-b);
-    const m = Math.floor(s.length/2);
-    return s.length % 2 ? s[m] : (s[m-1]+s[m])/2;
-  }
-
-  function scoreEye(k){
-    const h = history[k];
-    if(!h.length) return null;
-    const last = h.slice(-6).map(x => x.levelMm);
-    return median(last);
-  }
-
-  function toBurden(scoreMm){
-    if(scoreMm == null) return "unknown";
-    if(scoreMm <= 4.0) return "low";
-    if(scoreMm <= 6.5) return "mid";
-    return "high";
-  }
-
-  function recRange(b){
-    if(b === "low") return "+0.5〜+1.0（目安）";
-    if(b === "mid") return "+1.0〜+1.5（目安）";
-    if(b === "high") return "+1.5〜+2.0（目安）";
-    return "+1.0〜+1.5（目安）";
-  }
-
-  function nextQuestion(){
-    qNum.textContent = q.toString();
-    setOptotype(LEVELS[idx], randDir());
-  }
-
-  function applyStaircase(correct){
-    let move = null;
-    if(correct){
-      streak += 1;
-      if(streak >= 3){
-        streak = 0;
-        const newIdx = Math.min(idx + 1, LEVELS.length - 1);
-        move = (newIdx !== idx) ? "down" : null;
-        idx = newIdx;
-      }
-    } else {
-      streak = 0;
-      const newIdx = Math.max(idx - 1, 0);
-      move = (newIdx !== idx) ? "up" : null;
-      idx = newIdx;
-    }
-    if(lastMove && move && move !== lastMove) reversals += 1;
-    if(move) lastMove = move;
-  }
-
-  function showResult(){
-    const rScore = scoreEye("R");
-    const lScore = scoreEye("L");
-    let scoreMm = null;
-    if(rScore != null && lScore != null) scoreMm = Math.max(rScore, lScore);
-    else scoreMm = rScore ?? lScore;
-
-    const burden = toBurden(scoreMm);
-    const burdenJa = burden === "low" ? "低" : burden === "high" ? "高" : "中";
-
-    line1.textContent = `近くを見る負担：${burdenJa}（目安）`;
-    line2.textContent = `スコア：${scoreMm ? scoreMm + "mm" : "—"}（参考値）`;
-    rangeEl.textContent = recRange(burden);
-
-    resultBox.style.display = "block";
-    resultBox.scrollIntoView({behavior:"smooth", block:"start"});
-  }
-
-  function resetAll(){
-    eye = "R"; q = 1; idx = 0; streak = 0; lastMove = null; reversals = 0;
-    history.R = []; history.L = [];
-    eyeLabel.textContent = "右目でテスト";
-    resultBox.style.display = "none";
-    nextQuestion();
-  }
-
-  function toLeftEye(){
-    eye = "L";
-    eyeLabel.textContent = "左目でテスト";
-    q = 1; idx = 0; streak = 0; lastMove = null; reversals = 0;
-    nextQuestion();
-  }
-
-  btns.forEach(b => b.addEventListener("click", () => {
-    const ans = b.dataset.dir;
-    const correct = (ans === correctDir);
-    pushHistory(correct);
-    applyStaircase(correct);
-
-    q += 1;
-    const done = (q > TOTAL_Q) || (reversals >= 6);
-
-    if(done){
-      if(eye === "R") toLeftEye();
-      else showResult();
-      return;
-    }
-    nextQuestion();
-  }));
-
-  skipEye.addEventListener("click", () => {
-    if(eye === "R") toLeftEye();
-    else showResult();
-  });
-
-  reset.addEventListener("click", resetAll);
-
-  nextQuestion();
-})();
-</script>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
